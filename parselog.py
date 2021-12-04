@@ -53,10 +53,10 @@ def main(fname : str) -> None:
     parsedLines = [parseLogLine(l) for l in lines]
     events = consolidateEvents(parsedLines)
 
-    print("ID,Log message,Start Time,End Time,Time Diff")
+    print("Log message,Start Time,End Time,Time Diff")
     for id, vals in events.items():
         starttime,startmsg,endtime,endmsg = vals['starttime'], vals['startmsg'], vals['endtime'], vals['endmsg']
-        print(f'{id},"{startmsg} - {endmsg}",{starttime},{endtime},{timediff(starttime, endtime)}')
+        print(f'"{startmsg} - {endmsg}",{starttime},{endtime},{timediff(starttime, endtime)}')
 
 if __name__ == "__main__":
     main("api.log")
