@@ -10,7 +10,8 @@ def parseLogLine(line : str) -> dict:
     log = {}
     cols = re.split('[\s"]+', line)
 
-    log['datetime'] = f"{cols[0]} {cols[1]}"
+    log['datetime'] = f"{cols[0]} {cols[1]}".replace(",",".")
+    log['datetime'] = datetime.datetime.strptime(log['datetime'], "%Y-%m-%d %H:%M:%S.%f")
     log['logName'] = f"{cols[2]}"
     log['logLevel'] = f"{cols[3]}"
     assert log['logLevel'].upper() in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET']
@@ -24,9 +25,38 @@ def getLogLines(fname : str) -> typing.List[str]:
         dat = fd.read()
     return [l for l in dat.split("\n") if l != '']
 
+def consolidateEvents(parsedLogLines : typing.List[dict]) -> dict:
+    events = {}
+    for pl in parsedLogLines:
+        logid, logtime, logmsg = pl['ID'], pl['datetime'], pl['msg']
+        if logid in events:
+            ## update star/end times and corresponding messages
+            if logtime < events[logid]['starttime']:
+                events[logid]['startime'] = logtime
+                events[logid]['startmsg'] = logmsg
+            if logtime > events[logid]['endtime']:
+                events[logid]['endtime'] = logtime
+                events[logid]['endmsg'] = logmsg
+        else:
+            events[logid] = {}
+            events[logid]['starttime'] = events[logid]['endtime'] = logtime
+            events[logid]['startmsg'] = events[logid]['endmsg'] = logmsg
+            ## print(f"FIRST TIME LOGGING: {events[logid]}")
+    return events
+
+def timediff(starttime : datetime.datetime, endtime : datetime.datetime) -> float:
+    secs = (endtime - starttime).total_seconds()
+    return secs/60
+
 def main(fname : str) -> None:
     lines = getLogLines(fname)
-    print(parseLogLine(lines[0]))
+    parsedLines = [parseLogLine(l) for l in lines]
+    events = consolidateEvents(parsedLines)
+
+    print("ID,Log message,Start Time,End Time,Time Diff")
+    for id, vals in events.items():
+        starttime,startmsg,endtime,endmsg = vals['starttime'], vals['startmsg'], vals['endtime'], vals['endmsg']
+        print(f'{id},"{startmsg} - {endmsg}",{starttime},{endtime},{timediff(starttime, endtime)}')
 
 if __name__ == "__main__":
     main("api.log")

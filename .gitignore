@@ -60,3 +60,4 @@ src/*.so
 _site/
 .jekyll-cache/
 
+*.pdf
