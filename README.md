@@ -23,16 +23,25 @@ The first few lines from the provided log file are:
 2021-08-02 12:18:57,659 templogger   WARNING  "50dd359b-faa2-45d5-b2d2-51fb4892179f" "timeline ep starts"
 ```
 
+# Solution
+
 The `parselog.py` script will convert, almost, the provided log file into the required output format. The script can be 
 run on the command line as `python parselog.py`[^python-interactive-after-script] or can be imported into a repl using `import parselog` 
 with python started in the current directory.
 
-Below is a brief exploration of the script:
+Put the script in the same folder where the `api.log` is located. Then you can run the following command to generate the csv:
+
+```bash
+$ python parselog.py > output.csv
+```
+
+Or you can also explore the script in an interactive session. Here's an example:
 
 ```python
 >>> import parselog as p
 >>> dir(P)
 >>> help(p.getLogLines)
+>>> p.main("api.log")
 ```
 
 ## Some shortcomings of this script
