@@ -1,12 +1,7 @@
-##
-##
-## Author: Vijay Lulla
-## Date: 
-##
 import re,os,sys,datetime,typing
-import hypothesis as hy, hypothesis.strategies as st
 
 def parseLogLine(line : str) -> dict:
+    """Parses a log line"""
     log = {}
     cols = re.split('[\s"]+', line)
 
@@ -20,17 +15,18 @@ def parseLogLine(line : str) -> dict:
 
     return log
 
-def getLogLines(fname : str) -> typing.List[str]:
-    with open(fname) as fd:
+def getLogLines(logFilename : str) -> typing.List[str]:
+    """Read all the lines from the log file"""
+    with open(logFilename) as fd:
         dat = fd.read()
     return [l for l in dat.split("\n") if l != '']
 
 def consolidateEvents(parsedLogLines : typing.List[dict]) -> dict:
+    """Consolidate events into the required format"""
     events = {}
     for pl in parsedLogLines:
         logid, logtime, logmsg = pl['ID'], pl['datetime'], pl['msg']
         if logid in events:
-            ## update star/end times and corresponding messages
             if logtime < events[logid]['starttime']:
                 events[logid]['startime'] = logtime
                 events[logid]['startmsg'] = logmsg
@@ -41,15 +37,16 @@ def consolidateEvents(parsedLogLines : typing.List[dict]) -> dict:
             events[logid] = {}
             events[logid]['starttime'] = events[logid]['endtime'] = logtime
             events[logid]['startmsg'] = events[logid]['endmsg'] = logmsg
-            ## print(f"FIRST TIME LOGGING: {events[logid]}")
     return events
 
 def timediff(starttime : datetime.datetime, endtime : datetime.datetime) -> float:
+    """Calculate Time Diff column"""
     diff = (endtime - starttime)
     return diff/datetime.timedelta(minutes=1)
 
-def main(fname : str) -> None:
-    lines = getLogLines(fname)
+def main(logFilename : str) -> None:
+    """Run the main program"""
+    lines = getLogLines(logFilename)
     parsedLines = [parseLogLine(l) for l in lines]
     events = consolidateEvents(parsedLines)
 

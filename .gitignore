@@ -61,3 +61,4 @@ _site/
 .jekyll-cache/
 
 *.pdf
+README.html
