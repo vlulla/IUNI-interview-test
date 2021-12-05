@@ -45,8 +45,8 @@ def consolidateEvents(parsedLogLines : typing.List[dict]) -> dict:
     return events
 
 def timediff(starttime : datetime.datetime, endtime : datetime.datetime) -> float:
-    secs = (endtime - starttime).total_seconds()
-    return secs/60
+    diff = (endtime - starttime)
+    return diff/datetime.timedelta(minutes=1)
 
 def main(fname : str) -> None:
     lines = getLogLines(fname)
@@ -56,7 +56,7 @@ def main(fname : str) -> None:
     print("Log message,Start Time,End Time,Time Diff")
     for id, vals in events.items():
         starttime,startmsg,endtime,endmsg = vals['starttime'], vals['startmsg'], vals['endtime'], vals['endmsg']
-        print(f'"{startmsg} - {endmsg}",{starttime},{endtime},{timediff(starttime, endtime)}')
+        print(f'"{startmsg} - {endmsg}",{starttime},{endtime},{round(timediff(starttime, endtime), 5)}')
 
 if __name__ == "__main__":
     main("api.log")
